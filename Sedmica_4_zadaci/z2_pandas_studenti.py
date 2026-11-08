@@ -37,23 +37,52 @@ FOLDER = os.path.dirname(os.path.abspath(__file__))
 FAJL = os.path.join(FOLDER, "studenti.csv")
 
 # a) TODO: učitaj podatke i ispiši shape i head()
+studenti = pd.read_csv(FAJL)
 
+print("Dimenzije:", studenti.shape)
+print("\nPrvih 5 studenata:")
+print(studenti.head())
 
 # b) TODO: kolona prosjek
-
+studenti["prosjek"] = ( studenti["matematika"] +
+                        studenti["programiranje"] +
+                        studenti["statistika"] ) / 3
+print("\nProsjek prvih 5 studenata:")
+print(studenti[["ime", "matematika", "programiranje", "statistika", "prosjek"]].head())
 
 # c) TODO: top 5
-
+top_5 = studenti.sort_values( "prosjek",
+                              ascending = False,
+                              kind = "stable" ).head(5)
+print("\nTop 5 studenata po prosjeku:")
+print(top_5[["ime", "smjer", "prosjek"]])
 
 # d) TODO: value_counts
+broj_po_smjeru = studenti["smjer"].value_counts()
 
+print("\nBroj studenata po smjeru:")
+print(broj_po_smjeru)
 
 # e) TODO: groupby
+prosjek_po_smjeru = studenti.groupby("smjer")["prosjek"].mean()
+prosjek_po_smjeru = prosjek_po_smjeru.sort_values(ascending = False)
 
+print("\nProsjek po smjeru:")
+print(prosjek_po_smjeru.round(2))
 
 # f) TODO: filtriranje prisustva
+nisko_prisustvo = studenti[studenti["prisustvo"] < 70]
 
+print("\nStudenti sa prisustvom ispod 70%:")
+print(nisko_prisustvo[["ime", "prisustvo"]])
 
 # BONUS: TODO
+studenti["polozio"] = ( (studenti["matematika"] >= 6) &
+                        (studenti["programiranje"] >= 6) &
+                        (studenti["statistika"] >= 6) )
+ukupno_polozilo = studenti["polozio"].sum()
+print("\nUkupno polozilo:", ukupno_polozilo)
 
-print("Zadatak 2 - dopuni TODO dijelove.")
+polozili_po_smjeru = studenti.groupby("smjer")["polozio"].sum()
+print("\nUkupno polozilo po smjeru:")
+print(polozili_po_smjeru)

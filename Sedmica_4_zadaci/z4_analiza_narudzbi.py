@@ -49,23 +49,79 @@ FAJL = os.path.join(FOLDER, "narudzbe.csv")
 DANI = ["Pon", "Uto", "Sri", "Čet", "Pet", "Sub", "Ned"]   # 0 = ponedjeljak
 
 # a) TODO: učitaj i pogledaj kolone
+df = pd.read_csv(FAJL)
 
+print("Kolone:")
+print(df.columns)
+
+print("\nDimenzije:")
+print(df.shape)
 
 # b) TODO: čišćenje
+df["iznos"] = pd.to_numeric(df["iznos"], errors="coerce")
 
+df["datum_vrijeme"] = pd.to_datetime( df["datum_vrijeme"],
+                                      errors="coerce" )
+
+print("\nNeispravni iznosi:", df["iznos"].isna().sum())
+print("Neispravni datumi:", df["datum_vrijeme"].isna().sum())
+
+df = df.dropna(subset=["iznos", "datum_vrijeme"])
+print("\nDimenzije nakon čišćenja:", df.shape)
 
 # c) TODO: izvedene kolone sat, dan, mjesec
+df["sat"] = df["datum_vrijeme"].dt.hour
+df["dan"] = df["datum_vrijeme"].dt.dayofweek.map(DANI.__getitem__)
+df["mjesec"] = df["datum_vrijeme"].dt.month
 
+print("\nPodaci sa novim kolonama:")
+print(df[["datum_vrijeme", "sat", "dan", "mjesec"]].head())
 
 # d) TODO: top 5 gradova + grafikon
+top_gradovi = df["grad"].value_counts().head(5)
 
+print("\nTop 5 gradova po broju narudžbi:")
+print(top_gradovi)
+
+plt.figure(figsize=(10, 5))
+
+top_gradovi.plot(kind="bar")
+
+plt.title("Top 5 gradova po broju narudžbi")
+plt.xlabel("Grad")
+plt.ylabel("Broj narudžbi")
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+plt.savefig(os.path.join(FOLDER, "z4_gradovi.png"))
+plt.show()
 
 # e) TODO: narudžbe po satu + grafikon
+narudzbe_po_satu = df["sat"].value_counts().sort_index()
 
+print("\nBroj narudžbi po satu:")
+print(narudzbe_po_satu)
+
+plt.figure(figsize=(10, 5))
+
+narudzbe_po_satu.plot(kind="bar")
+
+plt.title("Broj naružbi po satu")
+plt.xlabel("Sat")
+plt.ylabel("Broj narudžbi")
+plt.xticks(rotation=0)
+plt.tight_layout()
+
+plt.savefig(os.path.join(FOLDER, "z4_sati.png"))
+plt.show()
+
+najvise_narudzbi = narudzbe_po_satu.idxmax()
+
+print("\nNajviše narudžbi u satu:", najvise_narudzbi)
+print("Broj narudžbi:", narudzbe_po_satu.max())
 
 # f) TODO: prosječan iznos po kategoriji
 
 
 # BONUS: TODO
 
-print("Zadatak 4 - dopuni TODO dijelove.")
